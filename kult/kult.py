@@ -30,7 +30,7 @@ class Client:
             campus (str, optional): Student's Campus. Defaults to "S".
     """
 
-    def __init__(self, student_id, campus="S") -> None:
+    def __init__(self, student_id, campus="S") -> None: # Global campus not tested.
         self.student_id = student_id
         self.campus = campus
         self.encoded_id = b64encode(str(student_id).encode())
@@ -52,9 +52,9 @@ class Client:
             str: url
         """
         if query:
-            return "ipaddr" + path + parse.urlencode(query)
+            return "CHANGEME" + path + parse.urlencode(query) # PUT IPADDRESS HERE
         else:
-            return "ipaddr" + path
+            return "CHANGEME" + path
 
     def get_user_data(self) -> dict:
         """
@@ -108,10 +108,14 @@ class Client:
 
             result["seat_start_time"] = datetime.strptime(start_time_str, dt_format)
             result["seat_end_time"] = datetime.strptime(end_time_str, dt_format)
+            self.room_n = result["room_no"]
+            self.seat_n = result["seat_using"]
 
         except:
             result["room_using"] = ""
             result["seat_using"] = ""
+            self.room_n = result["room_no"]
+            self.seat_n = result["seat_using"]
 
         return result
 
@@ -234,7 +238,7 @@ class Client:
 
         return return_codes.get(result_msg, 200)
 
-    def continue_seat(self, seat_no: int, room_no: int) -> int:
+    def continue_seat(self) -> int:
         """
         Continues using seat.
 
@@ -250,10 +254,14 @@ class Client:
             "연장은 종료시간 60분전부터 가능합니다.": 201,  #
             "등록되지 않은 사용자 입니다.1": 202,  # Unknown user
         }
+
+        if self.seat_n == "":
+            raise ValueError("You are not using any seat or not in the library yet.")
+
         query = {
             "real_id": self.encoded_id,
-            "seat_no": seat_no,
-            "room_no": room_no,
+            "seat_no": self.seat_n,
+            "room_no": self.room_n,
             "campus_gb": self.campus,
         }
 
@@ -269,7 +277,7 @@ class Client:
             .firstChild.nodeValue
         )
 
-        result_code = return_codes.get(result_msg, 200)
+        result_code = return_codes.get(result_msg, 200) # TODO: Properly raise error.
 
         return result_code
 

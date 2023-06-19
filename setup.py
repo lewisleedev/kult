@@ -1,11 +1,11 @@
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding = 'utf-8') as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="kult",
-    version="0.1.0a1",
+    version="0.1.1a1",
     author="lewisleedev",
     author_email="lewislee@lewislee.net",
     description="경희대학교 도서관 비공식 파이썬 라이브러리",
